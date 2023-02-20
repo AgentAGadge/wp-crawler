@@ -1,0 +1,9 @@
+<h1>List of retrieved URLs:</h1>
+<table>
+    {% for hyperlink in hyperlinks %}
+        <tr>
+            <td>{{ hyperlink.url }}</td>
+            <td>{{ hyperlink.origin }}</td>
+        </tr>
+    {% endfor %}
+</table>
