@@ -4,15 +4,28 @@ import re
 from . import models
 
 def list_hyperlinks_in(url):
+    """
+    This function retrieves all the hyperlinks from a url and returns the list.
+
+    Parameters 
+    ---------- 
+        url: (String) URL of the page to crawl
+    Returns
+    -------
+        links: (list of hyperlink) All hyperlinks found in the URL to crawl.
+    
+    """
+    #Request the html page to crawl
     request = Request(url)
     html_page = urlopen(request)
 
+    #Parse the html page with BeautifulSoup
     soup_page = BeautifulSoup(html_page, "html.parser")
 
+    #Retrieve all hyperlinks from the BeautifulSoup format of the page
     links = []
     for link in soup_page.findAll('a'):
-        hyperlink = models.hyperlink(link.get('href'), url)
+        hyperlink = models.Hyperlink.create(link.get('href'), url)
         links.append(hyperlink)
 
     return links
-    

@@ -16,6 +16,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+_admin_site_get_urls = admin.site.get_urls
+
+def get_urls():        
+    from django.conf.urls import url
+    urls = _admin_site_get_urls()
+    urls += [
+            url(r'^my_custom_view/$',
+                 admin.site.admin_view(MyCustomView.as_view()))
+        ]
+    return urls
+
+admin.site.get_urls = get_urls
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("hyperlist/", include('hyperlist.urls')),
