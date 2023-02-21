@@ -29,3 +29,14 @@ def list_hyperlinks_in(url):
         links.append(hyperlink)
 
     return links
+
+def updateOrigin(origin):
+    hyperlinks = list_hyperlinks_in(origin.url)
+    models.delete_hyperlinks_from_origin(origin.url)
+    models.insert_hyperlinks(hyperlinks)
+
+def crawlOrigins():
+    origins = list(models.OriginURL.objects.all())
+    for origin in origins:
+        updateOrigin(origin)
+

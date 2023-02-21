@@ -13,3 +13,7 @@ class HyperlinkAdmin(admin.ModelAdmin):
         return False
     def has_delete_permission(self, request, obj=None):
         return False
+    
+@admin.register(models.OriginURL)
+class OriginURLAdmin(admin.ModelAdmin):
+    list_display = [models.OURL_CLASS_URL_FIELD, models.OURL_CLASS_DATE_FIELD]

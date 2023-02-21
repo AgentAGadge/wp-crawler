@@ -2,6 +2,37 @@ from django.db import models
 import datetime
 
 # Create your models here.
+
+# ORIGINURL CONSTANT DEFINITION
+OURL_CLASS_URL_FIELD = "url"
+OURL_CLASS_DATE_FIELD = "date_created"
+class OriginURL(models.Model):
+    #url link found
+    url = models.CharField(max_length = 200)
+    #DateTime of the hyperlink entry creation
+    date_created = models.DateTimeField(auto_now_add=True, blank=True)
+
+    def __str__(self):
+        return self.url
+    
+    def create(url, origin):
+        """
+        This function creates a Origin object with a URL and returns it.
+
+        Parameters 
+        ---------- 
+            url: (String) url link of the Hyperlink object to create
+
+        Returns
+        -------
+            (OriginURL) Created object
+        """
+        origin = OriginURL()
+        origin.url = url
+
+        return origin
+
+
 # HYPERLINK CONSTANT DEFINITION
 HPLK_CLASS_URL_FIELD = "url"
 HPLK_CLASS_ORIGIN_FIELD = "origin"
@@ -64,3 +95,4 @@ def delete_hyperlinks_from_origin(origin):
     hyperlinks = list(Hyperlink.objects.filter(origin=origin))
     for hyperlink in hyperlinks:
         hyperlink.delete()
+        
