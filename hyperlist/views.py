@@ -3,8 +3,9 @@ from django.http import HttpResponse
 from . import models
 from . import service
 
+
 VPARAM_ANALYZE_URL = 'url'
-VPARAM_ANALYZE_STORE = 'url'
+VPARAM_ANALYZE_STORE = 'store'
 
 def analyze(request):
     """This call retrieves all the hyperlinks from a url and returns the result in an array on a HTML page.
@@ -28,10 +29,8 @@ def analyze(request):
 
     #Update the database, if needed
     if('true'==delete_and_store):
-        #Remove all entries linked to the origin URL
-        models.delete_hyperlinks_from_origin(url_to_crawl)
-        #Add the results of the last crawl
-        models.insert_hyperlinks(hyperlinks)
+        service.storeCrawl(url_to_crawl, hyperlinks)
 
     #Display the result of the crawl
-    return render(request, 'hyperlist.html', { 'hyperlinks': hyperlinks})
+    render_context = {'url':url_to_crawl, 'hyperlinks': hyperlinks}
+    return render(request, 'sitemap.html', render_context)

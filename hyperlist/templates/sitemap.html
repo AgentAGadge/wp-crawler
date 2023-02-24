@@ -1,0 +1,5 @@
+<h1>Sitemap of {{ url }}</h1>
+{% for hyperlink in hyperlinks %}
+    <a href={{ hyperlink.url }}>{{ hyperlink.text }}</a><br>
+{% endfor %}
+</table>

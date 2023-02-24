@@ -9,6 +9,14 @@ APSC_JOB_CRAWL_ORIGINS = 'crawlOriginsJob'
 
 # This is the function you want to schedule - add as many as you want and then register them in the start() function below
 def crawlOriginsJob():
+    """Job performing a crawl of all registered OriginURL in database
+    Parameters 
+    ---------- 
+
+    Returns
+    -------
+    
+    """
     hyperlistService.crawlOrigins()
 
 
