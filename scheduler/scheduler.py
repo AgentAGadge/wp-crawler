@@ -1,13 +1,15 @@
+"""
+    Scheduler app (from apscheduler package)
+"""
+
+import sys
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from django_apscheduler.jobstores import DjangoJobStore, register_events
-from django.utils import timezone
-from django_apscheduler.models import DjangoJobExecution
-import sys
 from hyperlist import service as hyperlistService
 
 APSC_JOB_CRAWL_ORIGINS = 'crawlOriginsJob'
 
-# This is the function you want to schedule - add as many as you want and then register them in the start() function below
 def crawl_origins_job():
     """Job performing a crawl of all registered OriginURL in database
     Parameters 
@@ -21,6 +23,14 @@ def crawl_origins_job():
 
 
 def start():
+    """Start scheduler app method.
+    Parameters 
+    ---------- 
+
+    Returns
+    -------
+    
+    """
     scheduler = BackgroundScheduler()
     scheduler.add_jobstore(DjangoJobStore(), "default")
 
