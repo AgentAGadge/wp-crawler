@@ -1,0 +1,41 @@
+<h1>Hyperlist homepage</h1>
+
+{% if create_crawl_form %}
+    <h2>Set a new crawl</h2>
+    <form method="post">{% csrf_token %}
+        {% for field in create_crawl_form %}
+            <p>
+                {{field.label_tag}}
+                {{field}}
+
+                {% if field.help_text %}
+                    <small style="color: grey">{{field.help_text}}</small>
+                {% endif %}
+
+                {% for error in field.errors %}
+                    <small style="color: red">{{error}}</small>
+                {% endfor %}
+            </p>
+        {% endfor %}
+
+        <button type="submit">Crawl and schedule</button>    
+    </form>
+{% endif %}
+
+{% if crawl_result %}
+    <h2>Sitemap of {{ crawl_result.url }}</h2>
+    {% for hyperlink in crawl_result.hyperlinks %}
+        <a href={{ hyperlink.url }}>{{ hyperlink.text }}</a><br>
+    {% endfor %}
+{% endif %}
+
+{% if stored_results %}
+    <h2>Stored crawl results</h2>
+    {% for result in stored_results %}
+        {{ result.url }}
+        {% if result.sitemap %}
+            <a href="/hyperlist/download_stored_file?file={{ result.sitemap }}">sitemap.html</a>
+        {% endif %}
+        <br>
+    {% endfor %}
+{% endif %}

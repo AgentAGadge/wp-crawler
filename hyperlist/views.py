@@ -1,14 +1,22 @@
+"""
+    Hyperlist app. views.py for Django framework.
+"""
 from django.shortcuts import render
-from django.http import HttpResponse
-from . import models
+from django.http import FileResponse
+
 from . import service
+from . import forms
 
 
 VPARAM_ANALYZE_URL = 'url'
 VPARAM_ANALYZE_STORE = 'store'
+VPARAM_DLFILE_PATH = 'file'
 
-def analyze(request):
-    """This call retrieves all the hyperlinks from a url and returns the result in an array on a HTML page.
+
+def analyze_view(request):
+    """
+    This call retrieves all the hyperlinks from a url 
+    and returns the result in an array on a HTML page.
 
     Parameters 
     ---------- 
@@ -28,9 +36,70 @@ def analyze(request):
     hyperlinks = service.list_hyperlinks_in(url_to_crawl)
 
     #Update the database, if needed
-    if('true'==delete_and_store):
-        service.storeCrawl(url_to_crawl, hyperlinks)
+    if 'true'==delete_and_store:
+        service.store_crawl(url_to_crawl, hyperlinks)
 
     #Display the result of the crawl
-    render_context = {'url':url_to_crawl, 'hyperlinks': hyperlinks}
-    return render(request, 'sitemap.html', render_context)
+    context = {'url':url_to_crawl, 'hyperlinks': hyperlinks}
+    return render(request, 'sitemap.html', context)
+
+def home_view(request):
+    """
+    This call retrieves all the hyperlinks from a url 
+    and returns the result in an array on a HTML page.
+
+    Parameters 
+    ---------- 
+        request:
+            url: (String) URL of the page to crawl
+            store: (String) 'true' to delete and store the hyperlinks, does not impact DB otherwise.
+    Returns
+    -------
+        HttpResponse displaying an array with the list of hyperlinks found in the crawled URL.
+    
+    """
+    context = {}
+    #Manage the Crawl creation form and results
+    #POST request
+    if request.method=="POST":
+        form = forms.CreateCrawlForm(request.POST)
+        if form.is_valid():
+            #Retrieve URL from the form
+            url = form.cleaned_data.get('url')
+            #Crawl the page for hyperlinks
+            hyperlinks = service.list_hyperlinks_in(url)
+            #Update the database
+            service.store_crawl(url, hyperlinks)
+            print('toto')
+            context['crawl_result']= {"url": url, "hyperlinks": hyperlinks}
+
+    #GET request
+    else:
+        form = forms.CreateCrawlForm()
+    context['create_crawl_form'] = form
+
+    #Manage the list of existing crawl results
+    crawl_results=service.get_stored_crawl_results()
+    context['stored_results'] = crawl_results
+
+    return render(request, "home.html", context)
+
+def download_storage_file_view(request):
+    """
+    This call starts the download of the file identified with
+    its relative path from storage folder on the server
+
+    Parameters 
+    ---------- 
+        request:
+            file: (String) Relative path to the file from storage folder.
+    Returns
+    -------
+        response: (FileResponse) Download the file.
+    
+    """
+    relative_path = request.GET.get(VPARAM_DLFILE_PATH)
+    server_path = service.build_server_storage_path(relative_path)
+    response = FileResponse(open(server_path, 'rb'))
+    response['Content-Disposition'] = 'attachment; filename="'+relative_path+'"'
+    return response
