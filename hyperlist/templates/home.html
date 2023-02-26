@@ -36,6 +36,9 @@
         {% if result.sitemap %}
             <a href="/hyperlist/download_stored_file?file={{ result.sitemap }}">sitemap.html</a>
         {% endif %}
+        {% if result.page %}
+            <a href="/hyperlist/download_stored_file?file={{ result.page }}">page.html</a>
+        {% endif %}
         <br>
     {% endfor %}
 {% endif %}

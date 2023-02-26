@@ -5,6 +5,7 @@ import os
 import shutil
 
 from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
 from bs4 import BeautifulSoup
 from django.template.loader import render_to_string
 
@@ -12,27 +13,39 @@ from . import models
 
 PATH_STORAGE = 'storage'
 FILE_NAME_SITEMAP = 'sitemap.html'
+FILE_NAME_HTMLPAGE = 'page.html'
 
+def get_soup_from_url(url):
+    """
+    This function retrieves the HTML from a URL
 
-def list_hyperlinks_in(url):
+    Parameters 
+    ---------- 
+        url: (String) URL to open to retrieve the HTML of interest.
+    Returns
+    -------
+        soup_page: (BeautifulSoup) Returned HTTPResponse as parsed HTML
+
+    """
+    # Request the html page to crawl
+    request = Request(url)
+    http_response = urlopen(request)
+    # Parse the html page with BeautifulSoup
+    soup_page = BeautifulSoup(http_response, "html.parser")
+    return soup_page
+
+def list_hyperlinks_in(soup_page, url):
     """
     This function retrieves all the hyperlinks from a url and returns the list.
 
     Parameters 
     ---------- 
-        url: (String) URL of the page to crawl
+        soup_page: (BeautifulSoup) HTML page to crawl, returned from get_soup_from_url
     Returns
     -------
         links: (list of hyperlink) All hyperlinks found in the URL to crawl.
 
     """
-    # Request the html page to crawl
-    request = Request(url)
-    html_page = urlopen(request)
-
-    # Parse the html page with BeautifulSoup
-    soup_page = BeautifulSoup(html_page, "html.parser")
-
     # Retrieve all hyperlinks from the BeautifulSoup format of the page
     links = []
     for link in soup_page.findAll('a'):
@@ -52,33 +65,36 @@ def list_hyperlinks_in(url):
     return links
 
 
-def update_origin(origin):
+def crawl(url):
     """
     Crawl the URL of an Origin object and store the complete results: hyperlinks, sitemap.
 
     Parameters 
     ---------- 
-        request:
-            url: (Origin) Origin object containing the URL to crawl
+        url: (Origin) Origin object containing the URL to crawl
     Returns
     -------
-
+        hyperlinks: (List of Hyperlinks) hyperlinks found in the url
     """
-    # Crawl the URL
-    hyperlinks = list_hyperlinks_in(origin.url)
+    #Retrieve the HTML page as soup object from the URL
+    soup_page = get_soup_from_url(url)
+    # Crawl the page
+    hyperlinks = list_hyperlinks_in(soup_page, url)
     # Store the results
-    store_crawl(origin.url, hyperlinks)
+    store_crawl(url, hyperlinks, soup_page)
+
+    return hyperlinks
 
 
-def store_crawl(origin_url, hyperlinks):
+def store_crawl(origin_url, hyperlinks, soup_page):
     """
-    Stores complete results of a crawl: hyperlinks, sitemap and origin.
+    Stores complete results of a crawl: hyperlinks, sitemap, HTML page and origin.
 
     Parameters 
     ---------- 
-        request:
-            originUrl: (String) URL that was crawled
-            hyperlinks: (List of Hyperlinks) hyperlinks returned by the crawl
+        origin_url: (String) URL that was crawled
+        hyperlinks: (List of Hyperlinks) hyperlinks returned by the crawl
+        soup_page: (BeautifulSoup) HTML page returned from the URL as soup object
     Returns
     -------
 
@@ -97,6 +113,11 @@ def store_crawl(origin_url, hyperlinks):
         shutil.rmtree(path)
     # Create storage folder
     os.makedirs(path)
+    #Store the HTML page
+    html_page = soup_page.prettify( formatter="html" )
+    html_file = open(path+"/"+FILE_NAME_HTMLPAGE, "w", encoding='utf-8')
+    html_file.write(html_page) 
+    html_file.close()
     # Generate and store the sitemap file
     render_context = {'url': origin_url, 'hyperlinks': hyperlinks}
     content = render_to_string('sitemap.html', render_context)
@@ -117,7 +138,7 @@ def crawl_origins():
     """
     origins = list(models.OriginURL.objects.all())
     for origin in origins:
-        update_origin(origin)
+        crawl(origin.url)
 
 
 def get_stored_crawl_results():
@@ -147,7 +168,9 @@ def get_stored_crawl_results():
             sitemap_path = os.path.join(item.path, FILE_NAME_SITEMAP)
             if os.path.isfile(sitemap_path):
                 crawl_result['sitemap']=sitemap_path.removeprefix(PATH_STORAGE+os.sep)
-                print(sitemap_path)
+            page_path = os.path.join(item.path, FILE_NAME_HTMLPAGE)
+            if os.path.isfile(page_path):
+                crawl_result['page']=page_path.removeprefix(PATH_STORAGE+os.sep)
 
             crawl_result_list.append(crawl_result)
 

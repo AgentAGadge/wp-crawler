@@ -15,38 +15,6 @@ VPARAM_ANALYZE_URL = 'url'
 VPARAM_ANALYZE_STORE = 'store'
 VPARAM_DLFILE_PATH = 'file'
 
-class AnalyzeView(LoginRequiredMixin, View):
-    """
-    This view retrieves all the hyperlinks from a url 
-    and returns the result in an array on a HTML page.
-
-    Parameters 
-    ---------- 
-        request:
-            url: (String) URL of the page to crawl
-            store: (String) 'true' to delete and store the hyperlinks, does not impact DB otherwise.
-    Returns
-    -------
-        HttpResponse displaying an array with the list of hyperlinks found in the crawled URL.
-    
-    """
-    def get(self, request):
-        """GET"""
-        #Retrieve parameters
-        url_to_crawl = request.GET.get(VPARAM_ANALYZE_URL)
-        delete_and_store = request.GET.get(VPARAM_ANALYZE_STORE)
-
-        #Crawl the page for hyperlinks
-        hyperlinks = service.list_hyperlinks_in(url_to_crawl)
-
-        #Update the database, if needed
-        if 'true'==delete_and_store:
-            service.store_crawl(url_to_crawl, hyperlinks)
-
-        #Display the result of the crawl
-        context = {'url':url_to_crawl, 'hyperlinks': hyperlinks}
-        return render(request, 'sitemap.html', context)
-
 class HomeView(LoginRequiredMixin,View):
     """
     This call retrieves all the hyperlinks from a url 
@@ -84,11 +52,7 @@ class HomeView(LoginRequiredMixin,View):
         if form.is_valid():
             #Retrieve URL from the form
             url = form.cleaned_data.get('url')
-            #Crawl the page for hyperlinks
-            hyperlinks = service.list_hyperlinks_in(url)
-            #Update the database
-            service.store_crawl(url, hyperlinks)
-            print('toto')
+            hyperlinks = service.crawl(url)
             context['crawl_result']= {"url": url, "hyperlinks": hyperlinks}
 
         context['create_crawl_form'] = form
