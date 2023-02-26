@@ -18,7 +18,10 @@
             </p>
         {% endfor %}
 
-        <button type="submit">Crawl and schedule</button>    
+        <button type="submit">Crawl and schedule</button>   
+        {% if crawl_error %}
+            <medium style="color: red">{{crawl_error}}</medium>
+        {% endif %} 
     </form>
 {% endif %}
 

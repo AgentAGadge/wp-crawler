@@ -29,10 +29,21 @@ def get_soup_from_url(url):
     """
     # Request the html page to crawl
     request = Request(url)
-    http_response = urlopen(request)
+    try:
+        http_response = urlopen(request)
+    except HTTPError as e:
+        print('ERROR: HTTPError in get_soup_from_url. Code: ', e.code)
+        raise
+    except URLError as e:
+        print('ERROR: URLError in get_soup_from_url. Reason: ', e.reason)
+        raise
+    except Exception as e:
+        raise
     # Parse the html page with BeautifulSoup
     soup_page = BeautifulSoup(http_response, "html.parser")
     return soup_page
+    
+
 
 def list_hyperlinks_in(soup_page, url):
     """
@@ -111,19 +122,31 @@ def store_crawl(origin_url, hyperlinks, soup_page):
     # Remove the existing storage for this website, if it exists.
     if os.path.exists(path):
         shutil.rmtree(path)
-    # Create storage folder
-    os.makedirs(path)
+    try:
+        # Create storage folder
+        os.makedirs(path)
+    except OSError as e:
+        print('ERROR: OSError in store_crawl. Message: ', e.strerror)
+        raise
     #Store the HTML page
     html_page = soup_page.prettify( formatter="html" )
-    html_file = open(path+"/"+FILE_NAME_HTMLPAGE, "w", encoding='utf-8')
-    html_file.write(html_page) 
-    html_file.close()
+    try:
+        html_file = open(path+"/"+FILE_NAME_HTMLPAGE, "w", encoding='utf-8')
+        html_file.write(html_page) 
+        html_file.close()
+    except OSError as e:
+        print('ERROR: OSError in store_crawl for html_file. Message: ', e.strerror)
+        raise
     # Generate and store the sitemap file
     render_context = {'url': origin_url, 'hyperlinks': hyperlinks}
     content = render_to_string('sitemap.html', render_context)
-    sitemap_file = open(path+"/"+FILE_NAME_SITEMAP, "w", encoding='utf-8')
-    sitemap_file.write(content)
-    sitemap_file.close()
+    try:
+        sitemap_file = open(path+"/"+FILE_NAME_SITEMAP, "w", encoding='utf-8')
+        sitemap_file.write(content)
+        sitemap_file.close()
+    except OSError as e:
+        print('ERROR: OSError in store_crawl for sitemap_file. Message: ', e.strerror)
+        raise
 
 
 def crawl_origins():
