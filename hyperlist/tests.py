@@ -65,7 +65,7 @@ class GetStoredCrawlResultsTestCase(TestCase):
     def test_get_stored_crawl_results(self):
         """Run the test"""
         #Arrange
-        service.PATH_STORAGE = 'hyperlist/tests/storage'
+        service.PATH_STORAGE = 'hyperlist/tests/storage_test'
         expected = [
             {'url': 'twitter.com', 'page': 'twitter.com/page.html'},
             {'url': 'www.twitter.com',
