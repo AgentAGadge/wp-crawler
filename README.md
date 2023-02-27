@@ -116,6 +116,10 @@ erDiagram
 
 The <code>hyperlist</code> app has been validated by <code>Pylint</code> against PEP8 guidelines.
 
+Tests are implemented using Django framework and can be run with the following command:
+
+<code>python manage.py test</code>
+
 ## Next steps
 
 This section lists the main improvements that remain to be implemented.
