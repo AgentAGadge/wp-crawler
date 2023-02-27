@@ -5,7 +5,6 @@
     "python.linting.pylintEnabled": true,
     "python.linting.pylintArgs": [
         "--load-plugins=pylint_django",
-        "--django-settings-module=wp-crawler.settings",
      ],
     "python.linting.lintOnSave" : true,
     "python.linting.pylintUseMinimalCheckers": false,

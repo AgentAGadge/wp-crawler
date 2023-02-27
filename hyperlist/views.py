@@ -1,12 +1,12 @@
 """
     Hyperlist app. views.py for Django framework.
 """
+from urllib.error import URLError, HTTPError
+
 from django.shortcuts import render
 from django.http import FileResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
-from urllib.error import URLError, HTTPError
-
 
 from . import service
 from . import forms
@@ -56,16 +56,22 @@ class HomeView(LoginRequiredMixin,View):
             try:
                 hyperlinks = service.crawl(url)
                 context['crawl_result']= {"url": url, "hyperlinks": hyperlinks}
-            except HTTPError as e:
-                context['crawl_error']='The HTTP response is incorrect. Make sure you can access the targeted URL.' + str(e)
-            except URLError as e:
-                context['crawl_error']='The URL cannot be reached. Make sure you can access the targeted URL.' + str(e)
-            except OSError as e:
-                context['crawl_error']='Internal server issue to store the results. Please retry. If the issue remains, contact the server manager.' + str(e)
-            except ValueError as e:
-                context['crawl_error']='An unexpected value was received. Make sure you entered a correct URL. Otherwise, contact the server manager.' + str(e)
-            except Exception as e:
-                context['crawl_error']='An unknown error occured. Please contact the server manager.' + str(e)
+            except HTTPError as error:
+                context['crawl_error']="""The HTTP response is incorrect.
+                 Make sure you can access the targeted URL.""" + str(error)
+            except URLError as error:
+                context['crawl_error']="""The URL cannot be reached.
+                Make sure you can access the targeted URL.""" + str(error)
+            except OSError as error:
+                context['crawl_error']="""Internal server issue to store the results.
+                  Please retry. If the issue remains, contact the server manager.""" + str(error)
+            except ValueError as error:
+                context['crawl_error']="""An unexpected value was received.
+                  Make sure you entered a correct URL.
+                  Otherwise, contact the server manager.""" + str(error)
+            except Exception as error:
+                context['crawl_error']="""An unknown error occured.
+                 Please contact the server manager.""" + str(error)
         context['create_crawl_form'] = form
 
         #Manage the list of existing crawl results

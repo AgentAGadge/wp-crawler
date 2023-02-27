@@ -31,18 +31,19 @@ def get_soup_from_url(url):
     request = Request(url)
     try:
         http_response = urlopen(request)
-    except HTTPError as e:
-        print('ERROR: HTTPError in get_soup_from_url. Code: ', e.code)
+    except HTTPError as error:
+        print('ERROR: HTTPError in get_soup_from_url. Code: ', error.code)
         raise
-    except URLError as e:
-        print('ERROR: URLError in get_soup_from_url. Reason: ', e.reason)
+    except URLError as error:
+        print('ERROR: URLError in get_soup_from_url. Reason: ', error.reason)
         raise
-    except Exception as e:
+    except Exception as error:
+        print('ERROR: Exception in get_soup_from_url. Message ', str(error))
         raise
     # Parse the html page with BeautifulSoup
     soup_page = BeautifulSoup(http_response, "html.parser")
     return soup_page
-    
+
 def list_hyperlinks_in(soup_page, url):
     """
     This function retrieves all the hyperlinks from a url and returns the list.
@@ -122,17 +123,17 @@ def store_crawl(origin_url, hyperlinks, soup_page):
     try:
         # Create storage folder
         os.makedirs(path)
-    except OSError as e:
-        print('ERROR: OSError in store_crawl. Message: ', e.strerror)
+    except OSError as error:
+        print('ERROR: OSError in store_crawl. Message: ', error.strerror)
         raise
     #Store the HTML page
     html_page = soup_page.prettify( formatter="html" )
     try:
         html_file = open(path+"/"+FILE_NAME_HTMLPAGE, "w", encoding='utf-8')
-        html_file.write(html_page) 
+        html_file.write(html_page)
         html_file.close()
-    except OSError as e:
-        print('ERROR: OSError in store_crawl for html_file. Message: ', e.strerror)
+    except OSError as error:
+        print('ERROR: OSError in store_crawl for html_file. Message: ', error.strerror)
         raise
     # Generate and store the sitemap file
     render_context = {'url': origin_url, 'hyperlinks': hyperlinks}
@@ -141,8 +142,8 @@ def store_crawl(origin_url, hyperlinks, soup_page):
         sitemap_file = open(path+"/"+FILE_NAME_SITEMAP, "w", encoding='utf-8')
         sitemap_file.write(content)
         sitemap_file.close()
-    except OSError as e:
-        print('ERROR: OSError in store_crawl for sitemap_file. Message: ', e.strerror)
+    except OSError as error:
+        print('ERROR: OSError in store_crawl for sitemap_file. Message: ', error.strerror)
         raise
 
 def crawl_origins():
@@ -160,8 +161,8 @@ def crawl_origins():
         try:
             crawl(origin.url)
             print('Successfully crawled ' + origin.url)
-        except Exception as e:
-            print('ERROR: crawl_origins. Could not crawl ' + origin.url + ' ' + str(e))
+        except Exception as error:
+            print('ERROR: crawl_origins. Could not crawl ' + origin.url + ' ' + str(error))
             continue
 
 def get_stored_crawl_results():
