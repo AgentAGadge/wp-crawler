@@ -40,7 +40,7 @@ def insert_origin(origin_url):
     Create a OriginURL object in database from a URL if it does not exist already.
     Parameters 
     ---------- 
-        originURL: (String) URL to associate to the Origin object
+        origin_url: (String) URL to associate to the Origin object
     Returns
     -------
         origin: (OriginURL) created or already existing OriginURL object.
@@ -85,6 +85,7 @@ def create_hyperlink(url, origin, text=''):
     ---------- 
         url: (String) url link of the Hyperlink object to create
         origin: (String) url link of the origin page on which the Hyperlink has been found
+        text: (String - Optional) clickable text associated to the hyperlink. If not provided, url is used.
     Returns
     -------
         (Hyperlink) Created object
@@ -117,7 +118,7 @@ def delete_hyperlinks_from_origin(origin):
     This function removes all hyperlinks in DB with a given 
     Parameters 
     ---------- 
-        hyperlinks: (List of hyperlinks) List of hyperlinks to store in DB.
+        origin: (String) value of origin column for which all hyperlink entries must be deleted.
     Returns
     -------
     

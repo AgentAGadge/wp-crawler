@@ -50,6 +50,7 @@ def list_hyperlinks_in(soup_page, url):
     Parameters 
     ---------- 
         soup_page: (BeautifulSoup) HTML page to crawl, returned from get_soup_from_url
+        url: (String) URL from which the soup_page has been retrieved.
     Returns
     -------
         links: (list of hyperlink) All hyperlinks found in the URL to crawl.
