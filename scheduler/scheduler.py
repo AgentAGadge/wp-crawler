@@ -19,7 +19,9 @@ def crawl_origins_job():
     -------
     
     """
+    print('Starting ' + APSC_JOB_CRAWL_ORIGINS + ' job...')
     hyperlistService.crawl_origins()
+    print('Job ' + APSC_JOB_CRAWL_ORIGINS + ' is finished.')
 
 
 def start():

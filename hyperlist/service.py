@@ -43,8 +43,6 @@ def get_soup_from_url(url):
     soup_page = BeautifulSoup(http_response, "html.parser")
     return soup_page
     
-
-
 def list_hyperlinks_in(soup_page, url):
     """
     This function retrieves all the hyperlinks from a url and returns the list.
@@ -75,7 +73,6 @@ def list_hyperlinks_in(soup_page, url):
 
     return links
 
-
 def crawl(url):
     """
     Crawl the URL of an Origin object and store the complete results: hyperlinks, sitemap.
@@ -95,7 +92,6 @@ def crawl(url):
     store_crawl(url, hyperlinks, soup_page)
 
     return hyperlinks
-
 
 def store_crawl(origin_url, hyperlinks, soup_page):
     """
@@ -148,7 +144,6 @@ def store_crawl(origin_url, hyperlinks, soup_page):
         print('ERROR: OSError in store_crawl for sitemap_file. Message: ', e.strerror)
         raise
 
-
 def crawl_origins():
     """
     Perform a crawl and stores the results for each Origin object registered in database.
@@ -161,8 +156,12 @@ def crawl_origins():
     """
     origins = list(models.OriginURL.objects.all())
     for origin in origins:
-        crawl(origin.url)
-
+        try:
+            crawl(origin.url)
+            print('Successfully crawled ' + origin.url)
+        except Exception as e:
+            print('ERROR: crawl_origins. Could not crawl ' + origin.url + ' ' + str(e))
+            continue
 
 def get_stored_crawl_results():
     """
@@ -210,5 +209,5 @@ def build_server_storage_path(relative_path):
     -------
         server_path: (String) Absolute path for the server to the file
     """
-    server_path = os.path.realpath(os.path.join(PATH_STORAGE, relative_path))
+    server_path = os.path.realpath(os.path.join(PATH_STORAGE, str(relative_path)))
     return server_path
